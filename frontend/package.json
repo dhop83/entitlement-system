@@ -28,21 +28,21 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{dhop83 }}
-          password: ${{!Kingdom@2025!$ }}
+          username: dhop83
+          password: "!Kingdom@2025!$"
 
       - name: Build and Push Backend
         uses: docker/build-push-action@v4
         with:
           context: ./backend
-          tags: your-dockerhub-username/entitlement-backend:latest
+          tags: dhop83/entitlement-backend:latest
           push: true
 
       - name: Build and Push Frontend
         uses: docker/build-push-action@v4
         with:
           context: ./frontend
-          tags: your-dockerhub-username/entitlement-frontend:latest
+          tags: dhop83/entitlement-frontend:latest
           push: true
 ```
 
@@ -241,7 +241,7 @@ services:
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/your-username/entitlement-management-system.git
+git clone https://github.com/dhop83/entitlement-system.git
 cd entitlement-management-system
 ```
 
@@ -259,4 +259,3 @@ docker-compose up --build
 ```bash
 docker-compose down
 ```
-

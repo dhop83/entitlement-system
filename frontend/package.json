@@ -1,16 +1,263 @@
+# Entitlement Management System - Full Package
+
+## Directory Structure
+
+### GitHub Actions for Automatic Builds
+
+#### .github/workflows/deploy.yml
+
+```yaml
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          tags: your-dockerhub-username/entitlement-backend:latest
+          push: true
+
+      - name: Build and Push Frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          tags: your-dockerhub-username/entitlement-frontend:latest
+          push: true
+```
+
+
+```
+entitlement-management-system/
+├── backend/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── public/
+│   │   ├── index.html
+│   └── src/
+│       ├── App.js
+│       ├── index.js
+│       ├── styles.css
+│       └── components/
+│           ├── Dashboard.js
+│           ├── CustomerProfile.js
+│           ├── EntitlementManager.js
+│           ├── RevenueAnalysis.js
+│           └── RealTimeCharts.js
+│   ├── package.json
+│   └── Dockerfile
+├── docker-compose.yml
+└── README.md
+```
+
+## Backend (Flask API)
+
+### backend/app.py
+
+```python
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return jsonify({"message": "Backend is running on Render"})
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "healthy"})
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+```
+
+### backend/requirements.txt
+
+```plaintext
+flask
+flask-cors
+```
+
+### backend/Dockerfile
+
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY . .
+RUN pip install --no-cache-dir -r requirements.txt
+CMD ["python", "app.py"]
+```
+
+## Frontend (React)
+
+### frontend/public/index.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Entitlement Frontend</title>
+</head>
+<body>
+    <div id="root"></div>
+    <script src="/index.js"></script>
+</body>
+</html>
+```
+
+### frontend/src/index.js
+
+```javascript
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./styles.css";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+```
+
+### frontend/src/App.js
+
+```javascript
+import React from "react";
+
+function App() {
+    return (
+        <div>
+            <h1>Entitlement Management System</h1>
+            <p>The frontend is running successfully!</p>
+        </div>
+    );
+}
+
+export default App;
+```
+
+### frontend/src/styles.css
+
+```css
+body {
+    background-color: #f4f5f7;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+h1 {
+    color: #0052cc;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.App {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+}
+```
+
+### frontend/package.json
+
+```json
 {
   "name": "entitlement-frontend",
   "version": "1.0.0",
-  "private": true,
+  "main": "index.js",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
     "recharts": "^2.8.0",
     "axios": "^1.4.0",
     "react-router-dom": "^6.14.0"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   }
 }
+```
+
+### frontend/Dockerfile
+
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+CMD ["npx", "serve", "-s", "build", "-l", "3000"]
+```
+
+## Docker Compose
+
+### docker-compose.yml
+
+```yaml
+version: "3.9"
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+```
+
+## README.md
+
+```markdown
+# Entitlement Management System
+
+## Getting Started
+
+### Clone the Repository
+```bash
+git clone https://github.com/your-username/entitlement-management-system.git
+cd entitlement-management-system
+```
+
+### Run the Application
+```bash
+docker-compose up --build
+```
+
+### Access the Application
+- Frontend: http://entitlement-backend.onrender.com:3000
+- Backend: http://entitlement-backend.onrender.com:5000
+```
+
+### Stopping the Application
+```bash
+docker-compose down
+```
